@@ -33,7 +33,7 @@ permalink: /404.html
 		}
 		p {
 			margin: 0 auto;
-			width: 280px;
+			width: 320px;
 		}
 		@media only screen and (max-width: 280px) {
 			body, p {
@@ -53,19 +53,24 @@ permalink: /404.html
 		 * This function returns whether the rule matches the string with all "*" chracters
 		 * replaced with their intended regex meaning
 		 */
-		function isStrEqRegEx(str, rule) {
-			return isStrEqRegExRaw(str, rule.split("*").join(".*"));
+		function isStrEqRegEx(str, rule, flags) {
+			return isStrEqRegExRaw(str, rule.split("*").join(".*"), flags);
 		}
 		/*
 		 * This function returns whether the rule matches the string with the raw regex rule
 		 */
-		function isStrEqRegExRaw(str, rule) {
-			return new RegExp("^" + rule + "$").test(str);
+		function isStrEqRegExRaw(str, rule, flags) {
+			if (typeof flags === 'undefined'){
+				return new RegExp("^" + rule + "$").test(str);
+			}else{
+				return new RegExp("^" + rule + "$", flags).test(str);
+			}
 		}
 	</script>
 
 	<script>
 		var basePath = window.location.protocol + "//" + window.location.host + "/cpsc-info/";
+		// NOTE: use the below for local development
 		// var basePath = window.location.protocol + "//" + window.location.host + "/";
 		var lookupPath = "./404-lookup.json";
 		var lookup;
@@ -92,9 +97,12 @@ permalink: /404.html
 		function redirectHandler(lookup){
 			// if matches redirects, immediately redirect
 			for (var redir of lookup.redirects) {
-				if (isStrEqRegEx(getSafeUrlPath(), redir.from)){
+				var flags = "";
+				if (redir.ignoreCase) flags += "i";
+				if (isStrEqRegEx(getSafeUrlPath(), redir.from, flags)){
+					console.log("Redirecting to: ", redir.to);
 					window.location.replace(redir.to);
-					return; // should be unneeded, but just for safety if there are multiple matches
+					return; // should be unneeded, but just for safety
 				}
 			}
 		}
@@ -104,7 +112,9 @@ permalink: /404.html
 
 			// if matches suggestion, put suggestion on page
 			for (var sugg of lookup.suggestions) {
-				if (isStrEqRegEx(getSafeUrlPath(), sugg.from)){
+				var flags = "";
+				if (sugg.ignoreCase) flags += "i";
+				if (isStrEqRegEx(getSafeUrlPath(), sugg.from, flags)){
 					var numLinks = Object.values(sugg.to).length;
 					if (numLinks > 0){
 						var message = "";

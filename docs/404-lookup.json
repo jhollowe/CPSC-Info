@@ -2,11 +2,13 @@
   "redirects": [
     {
       "from": "home*",
-      "to": "index.html"
+      "to": "index.html",
+      "ignoreCase": true
     },
     {
-      "from": "getting.started/i",
-      "to": "getting-started.html"
+      "from": "getting.started",
+      "to": "getting-started.html",
+      "ignoreCase": true
     }
   ],
   "suggestions": [
@@ -21,7 +23,8 @@
           "link": "https://clemson.instructure.com",
           "text": "Clemson Canvas"
         }
-      ]
+      ],
+      "ignoreCase": true
     },
     {
       "from": "handin*",
@@ -34,7 +37,8 @@
           "link": "https://checkin.cs.clemson.edu",
           "text": "Clemson Checkin"
         }
-      ]
+      ],
+      "ignoreCase": true
     }
   ]
 }
