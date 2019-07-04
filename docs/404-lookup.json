@@ -1,0 +1,40 @@
+{
+  "redirects": [
+    {
+      "from": "home*",
+      "to": "index.html"
+    },
+    {
+      "from": "getting.started/i",
+      "to": "getting-started.html"
+    }
+  ],
+  "suggestions": [
+    {
+      "from": "canvas*",
+      "to": [
+        {
+          "link": "getting-started.html#content4-c",
+          "text": "Getting Started (Canvas)"
+        },
+        {
+          "link": "https://clemson.instructure.com",
+          "text": "Clemson Canvas"
+        }
+      ]
+    },
+    {
+      "from": "handin*",
+      "to": [
+        {
+          "link": "getting-started.html#content4-a",
+          "text": "Getting Started (Handin)"
+        },
+        {
+          "link": "https://checkin.cs.clemson.edu",
+          "text": "Clemson Checkin"
+        }
+      ]
+    }
+  ]
+}

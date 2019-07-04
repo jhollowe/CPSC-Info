@@ -4,52 +4,139 @@ permalink: /404.html
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Page Not Found</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        * {
-            line-height: 1.2;
-            margin: 0;
-        }
-        html {
-            color: #888;
-            display: table;
-            font-family: sans-serif;
-            height: 100%;
-            text-align: center;
-            width: 100%;
-        }
-        body {
-            display: table-cell;
-            vertical-align: middle;
-            margin: 2em auto;
-        }
-        h1 {
-            color: #555;
-            font-size: 2em;
-            font-weight: 400;
-        }
-        p {
-            margin: 0 auto;
-            width: 280px;
-        }
-        @media only screen and (max-width: 280px) {
-            body, p {
-                width: 95%;
-            }
-            h1 {
-                font-size: 1.5em;
-                margin: 0 0 0.3em;
-            }
+	<meta charset="utf-8">
+	<title>Page Not Found</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		* {
+			line-height: 1.2;
+			margin: 0;
+		}
+		html {
+			color: #888;
+			display: table;
+			font-family: sans-serif;
+			height: 100%;
+			text-align: center;
+			width: 100%;
+		}
+		body {
+			display: table-cell;
+			vertical-align: middle;
+			margin: 2em auto;
+			background-color: whitesmoke;
+		}
+		h1 {
+			color: #494949;
+			font-size: 2em;
+			font-weight: 400;
+		}
+		p {
+			margin: 0 auto;
+			width: 280px;
+		}
+		@media only screen and (max-width: 280px) {
+			body, p {
+				width: 95%;
+			}
+			h1 {
+				font-size: 1.5em;
+				margin: 0 0 0.3em;
+			}
+		}
+	</style>
+	<script>
+		function getSafeUrlPath(){
+			return encodeURI(window.location.href.substring(basePath.length));
+		}
+		/*
+		 * This function returns whether the rule matches the string with all "*" chracters
+		 * replaced with their intended regex meaning
+		 */
+		function isStrEqRegEx(str, rule) {
+			return isStrEqRegExRaw(str, rule.split("*").join(".*"));
+		}
+		/*
+		 * This function returns whether the rule matches the string with the raw regex rule
+		 */
+		function isStrEqRegExRaw(str, rule) {
+			return new RegExp("^" + rule + "$").test(str);
+		}
+	</script>
 
-        }
+	<script>
+		var basePath = window.location.protocol + "//" + window.location.host + "/cpsc-info/";
+		// var basePath = window.location.protocol + "//" + window.location.host + "/";
+		var lookupPath = "./404-lookup.json";
+		var lookup;
 
-    </style>
+
+		// read in JSON
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var myArr = JSON.parse(this.responseText);
+				lookup = myArr;
+				lookupHandler(myArr);
+			}
+		};
+		xmlhttp.open("GET", lookupPath, true);
+		xmlhttp.send();
+
+
+		function lookupHandler(lookup){
+			redirectHandler(lookup);
+			suggestionHandler(lookup);
+		}
+
+		function redirectHandler(lookup){
+			// if matches redirects, immediately redirect
+			for (var redir of lookup.redirects) {
+				if (isStrEqRegEx(getSafeUrlPath(), redir.from)){
+					window.location.replace(redir.to);
+					return; // should be unneeded, but just for safety if there are multiple matches
+				}
+			}
+		}
+
+		function suggestionHandler(lookup){
+			var suggDiv = document.getElementById("redirect-suggestions");
+
+			// if matches suggestion, put suggestion on page
+			for (var sugg of lookup.suggestions) {
+				if (isStrEqRegEx(getSafeUrlPath(), sugg.from)){
+					var numLinks = Object.values(sugg.to).length;
+					if (numLinks > 0){
+						var message = "";
+						if (numLinks === 1) message = "Is this what you were looking for?";
+						if (numLinks > 1) message = "Are any of these what you were looking for?";
+						var para = document.createElement("p");
+						para.innerHTML = message;
+						suggDiv.appendChild(para);
+						suggDiv.appendChild(document.createElement("br"));
+					}
+
+					for (var link of sugg.to){
+						var aTag = document.createElement('a');
+						aTag.setAttribute('href',link.link);
+						aTag.innerHTML = link.text;
+						suggDiv.appendChild(aTag);
+						suggDiv.appendChild(document.createElement('br'));
+					}
+				}
+			}
+		}
+		//TODO if matches suggestions, add suggestions to "redirect-suggestions" div
+
+
+	</script>
 </head>
 <body>
-    <h1>Page Not Found</h1>
-    <p>Sorry, but the page you were trying to view does not exist.</p>
+	<h1>Page Not Found</h1>
+	<p>Sorry, but the page you were trying to view does not exist.</p>
+	<br />
+	<br />
+	<div id="redirect-suggestions"></div>
 </body>
 </html>
 <!-- IE needs 512+ bytes: https://blogs.msdn.microsoft.com/ieinternals/2010/08/18/friendly-http-error-pages/ -->
